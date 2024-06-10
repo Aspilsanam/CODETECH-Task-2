@@ -1,0 +1,453 @@
+entity FPGA_Challenge is
+    Port ( led : out STD_LOGIC;
+           clk_in : in STD_LOGIC;  -- 100 MHZ internal clock 
+           reset : in STD_LOGIC;  -- is reset necessary 
+           button : in STD_LOGIC;
+           data_line : in STD_LOGIC);
+end FPGA_Challenge;
+
+architecture Behavioral of FPGA_Challenge is
+
+type state_type is (s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15, s16, s17, s18, s19, s20);
+
+signal state: state_type;
+
+signal x:std_logic;
+signal y:std_logic;
+
+signal count : integer:= 0; 
+--signal tmp: std_logic:= '1';
+eveloper survey is here and we would like to hear from you!
+Testbench for FSM
+Asked 4 years, 3 months ago
+Modified 4 years, 3 months ago
+Viewed 817 times
+0
+
+I'm trying to implement a testbench for the following fsm in created in vhdl. The problem is that currently, I'm not seeing any state transitions in the test bench. The simulation stays at state 0.
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+
+entity FPGA_Challenge is
+    Port ( led : out STD_LOGIC;
+           clk_in : in STD_LOGIC;  -- 100 MHZ internal clock 
+           reset : in STD_LOGIC;  -- is reset necessary 
+           button : in STD_LOGIC;
+           data_line : in STD_LOGIC);
+end FPGA_Challenge;
+
+architecture Behavioral of FPGA_Challenge is
+
+type state_type is (s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15, s16, s17, s18, s19, s20);
+
+signal state: state_type;
+
+signal x:std_logic;
+signal y:std_logic;
+
+signal count : integer:= 0; 
+--signal tmp: std_logic:= '1';
+
+
+begin
+
+process(clk_in, reset)
+    begin 
+        if rising_edge(clk_in)then
+            if reset = '1'then  -- Goes back to known state (state 0)
+                state <= s0;
+                count <= 0;
+            else
+                count <= count + 1;
+
+
+            case state is 
+                -- Initial state- if button is pressed, then LED is lit and machine goes to state 2, if not it stays in state 1
+                when s0 =>
+                    if (button <= '1') then
+                        led <= '1';
+                        state <= s1; 
+                    else 
+                        state <= s0;
+                        led <= '0';  --is this necessary? 
+
+                    end if;
+                -- Beginning of preamble detection(states 1-17) 
+                -- Count = ((freq in) / (freq out))/ 2  -1 = (100 MHz/ 2 MHz)/ 2 -1 = 50/2 - 1 (due to 50% duty cycle) 
+                when s1=>  -- do I need to put led = '1' in each state because it stays on ? 
+                    if (count = 25 -1) then 
+                        count <= 0;
+                        if (data_line = '1')then
+                            y <= '0';
+                --      led = '1';
+                            state <= s2;
+
+                        else
+                  --     led = '1';
+                            y <= '0'; 
+                            state <= s1;
+                        end if;
+
+                    else
+                        count <= count + 1; 
+                    end if;
+
+                      --clock_out <= tmp;
+
+
+                when s2 =>
+                    if (count = 25-1) then
+                        count <= 0;
+                        if (data_line = '0')then
+                            y <= '0';
+                       -- led = '1';
+                            state <= s3;
+
+                        else 
+                            state <= s2;
+                            y <= '0';
+                       -- led = '1';
+                        end if;
+
+                    else
+                        count <= count + 1; 
+                    end if;
+
+                         --clock_out <= tmp;
+
+                when s3 =>
+                    if (count = 25-1)then
+                        count <= 0; ----reinitializes count 
+
+                        if (data_line <= '1')then
+                            y <= '0';
+                       -- led = '1';
+                            state <= s4; 
+
+                        else 
+                            state <= s1;
+                            y <= '0';
+                       -- led = '1';
+                        end if;
+
+                    else
+count <= count + 1; 
+
+
+                    end if;
+                       -- clock_out <= tmp;
+
+
+                 when s4 =>
+                    if (count = 25-1)then
+                        count <= 0;
+
+                        if (data_line <='0')then
+                            y <= '0';
+                        --led = '1';
+                            state <= s5;
+
+                        else 
+                            state <= s2;
+                            y <= '0';
+                        --led = '1';
+                        end if;   
+
+                    else
+                        count <= count + 1; 
+                    end if;
+
+                      --  clock_out <= tmp;
+
+
+                 when s5 =>
+                    if (count = 25-1)then
+                        count <= 0;
+                        if (data_line <='0')then
+                            y <= '0';
+                        --led = '1';
+                            state <= s6;
+
+                        else 
+                            state <= s4;
+                            y <= '0';
+                        --led = '1';
+                        end if;
+
+                    else
+                        count <= count + 1; 
+                    end if;
+
+                        --clock_out <= tmp;
+
+
+                 when s6 =>
+                    if (count= 25-1)then
+                        count <= 0;
+                        if (data_line <='0')then
+                            y <= '0';
+                        --led = '1';
+                            state <= s7;
+
+                        else 
+                            state <= s2;
+                            y <= '0';
+                       --led = '1';
+                        end if;
+                    else
+                         count <= count + 1; 
+                    end if;
+
+                        -- clock_out <= tmp;
+
+                 when s7 =>
+                    if (count = 25-1)then
+                        count<= 0;
+
+                        if (data_line <='0')then
+                            y <= '0';
+                        --led = '1';
+                            state <= s7;
+
+                        else 
+                            state <= s2;
+                            y <= '0';
+                       --led = '1';
+                            end if;
+                    else
+                         count <= count + 1; 
+                    end if;
+
+
+                         --clock_out <= tmp;                         
+
+                 when s8 =>
+                    if (count = 25-1)then
+                        count <= 0;
+                        if (data_line <='1')then
+                            y <= '0';
+                       -- led = '1';
+                            state <= s9;
+
+                        else 
+                            state <= s1;
+                            y <= '0';
+                        --led = '1';
+                        end if;
+                    else
+                        count <= count + 1; 
+
+                    end if;
+                       -- clock_out <= tmp;
+
+
+                 when s9 =>
+                    if (count = 25-1)then
+                        count <= 0;
+                        if (data_line <='0')then
+                            y <= '0';
+                       -- led = '1';
+                            state <= s10;
+
+                        else 
+                            state <= s2;
+                            y <= '0';
+                       --led = '1';
+                        end if;
+
+                    else
+                        count <= count + 1; 
+
+                    end if;
+                         --clock_out <= tmp; 
+
+
+                 when s10=>
+                    if (count = 25-1)then
+                        count <= 0;
+                        if (data_line <='1')then
+                            y <= '0';
+                        --led = '1';
+                            state <= s11;
+
+                        else 
+                            state <= s1;
+                            y <= '0';
+                        --led = '1';
+                        end if;
+
+                    else
+                        count <= count + 1; 
+                    end if;
+
+                      --  clock_out <= tmp;
+
+                when s11 =>
+                    if (count = 25-1)then
+                        count <= 0;
+                        if (data_line <='0')then
+                            y <= '0';
+                        --led = '1';
+                            state <= s12;
+
+                        else 
+                            state <= s2;
+                            y <= '0';
+                        --led = '1';
+                        end if;
+                    else
+                        count <= count + 1; 
+
+                    end if;
+                        --clock_out <= tmp;
+
+                when s12 =>
+                    if (count = 25-1)then
+                        count <= 0;
+                        if (data_line <='0')then
+                            y <= '0';
+                        --led = '1';
+                            state <= s13;
+
+                        else 
+                            state <= s2;
+                            y <= '0';
+                        --led = '1';
+                        end if;
+                    else
+                        count <= count + 1; 
+
+                    end if;
+                       -- clock_out <= tmp;
+
+                when s13 =>
+                    if (count = 25-1)then
+                        count <= 0;
+                        if (data_line <='0')then
+                            y <= '0';
+                        -- led = '1';
+                            state <= s14;
+
+                        else 
+                            state <= s2;
+                            y <= '0';
+                        -- led = '1';
+                        end if;
+                    else
+                        count <= count + 1; 
+
+                    end if;
+                       -- clock_out <= tmp;
+
+                when s14 =>
+                    if (count = 25-1)then
+                        count <=0;
+                        if (data_line <='0')then
+                            y <= '0';
+                        -- led = '1';
+                            state <= s15;
+
+                        else 
+                            state <= s2;
+                            y <= '0';
+                        -- led = '1';
+                         end if;
+                    else
+                        count <= count + 1; 
+
+                    end if;
+                        --clock_out <= tmp;
+
+                when s15 =>
+                    if (count = 25-1)then
+                        count <=0;
+                        if (data_line <='0') then
+                            y <= '0';
+                        -- led = '1';
+                            state <= s16;
+
+                        else 
+                            state <= s2;
+                            y <= '0';
+                        -- led = '1';
+                        end if; 
+                    else
+                        count <= count + 1; 
+
+                    end if;
+                       -- clock_out <= tmp;
+
+                when s16 =>
+                    if (count = 25-1) then
+                        count <= 0;
+                        if (data_line <='0')then
+                            y <= '0';
+                        -- led = '1';
+                            state <= s17;
+
+                        else 
+                            state <= s2;
+                            y <= '0';
+                        -- led = '1';
+                        end if;
+                    else
+                        count <= count + 1; 
+
+                    end if;
+                        --clock_out <= tmp;
+
+                when s17 =>
+                    if (count = 25-1)then
+                        count <= 0;
+                        if (data_line ='1')then
+                            y <= '1';
+                        -- led = '1';
+                            state <= s18;
+
+                        else 
+                            state <= s1;
+                            y <= '0';
+                        --led = '1';
+                            end if; 
+                    else
+                        count <= count + 1; 
+
+                    end if;
+                        --clock_out <= tmp;
+
+                when s18 => -- no real condition here except varying period of clock 
+                    if (count = 25)then  
+                        count <= 0; ----reinitializes count
+                        state <= s19; 
+                    else
+                        count <= count + 1; 
+                    end if;
+
+                       -- clock_out <= tmp;
+
+
+                when s19=> -- no real condition here except varying period of clock 
+
+                    if (count = 25)then  
+                        count <= 0; ----reinitializes count
+                        state <= s0; 
+                    else
+                        count <= count + 1; 
+                    end if;
+                        --clock_out <= tmp;
+
+
+                when others=>
+                    null; 
+
+            end case;
+
+        end if;
+    end if;
+
+end process;
+
+end architecture;
