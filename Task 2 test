@@ -1,0 +1,79 @@
+entity FPGA_tb is
+--  Port ( );
+end FPGA_tb;
+
+architecture Behavioral of FPGA_tb is
+
+component FPGA_Challenge is
+    Port( led : out STD_LOGIC;
+        clk_in : in STD_LOGIC;  -- 100 MHZ internal clock 
+        reset : in STD_LOGIC;  -- is reset necessary 
+        button : in STD_LOGIC;
+        data_line : in STD_LOGIC);
+
+end component; 
+
+    signal led : STD_LOGIC;
+    signal clk_in :  STD_LOGIC;  -- 100 MHZ internal clock 
+    signal reset :  STD_LOGIC;  -- is reset necessary 
+    signal button :  STD_LOGIC;
+    signal data_line :  STD_LOGIC;
+
+    type state_type is (s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15, s16, s17, s18, s19, s20);
+
+    signal state: state_type;
+
+    signal  x,y: std_logic; 
+
+    signal count : integer:= 0; 
+
+
+begin
+
+UUT: FPGA_Challenge
+      PORT MAP(
+              led => led,
+              clk_in => clk_in,
+              reset => reset, 
+              button => button,
+              data_line => data_line 
+              );
+
+Testing: Process
+begin
+
+--wait until rising_edge(clk_in);
+--wait until rising_edge(clk_in);
+
+clk_in <='0';
+reset <= '1';
+button <= '0';
+data_line <= '0';
+WAIT For 10ns;
+
+clk_in <='1';
+reset <= '0';
+button <= '1';
+data_line <= '0';
+WAIT For 10ns;
+
+clk_in <='1';
+reset <= '1';
+button <= '0';
+data_line <= '1';
+WAIT For 10ns;
+
+clk_in <='0';
+reset <= '1';
+button <= '0';
+data_line <= '0';
+WAIT For 10ns;
+
+clk_in <='1';
+reset <= '1';
+button <= '0';
+data_line <= '0';
+WAIT For 10ns;
+
+end process;
+end Behavioral;
